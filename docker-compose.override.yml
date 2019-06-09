@@ -1,0 +1,16 @@
+version: '3.4'
+
+services:
+  sqlinjection:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      CUSTOMCONNSTR_DefaultConnection: "Server=sqlinjectiondb;Initial Catalog=Students;Persist Security Info=False;User ID=sa;Password=@Password1;MultipleActiveResultSets=False;Connection Timeout=30;"
+    ports:
+      - "5005:80"
+  
+  sqlinjectiondb:
+    environment:
+      - SA_PASSWORD=@Password1
+      - ACCEPT_EULA=Y
+    expose:
+      - "1433"

@@ -1,0 +1,13 @@
+version: '3.4'
+
+services:
+  sqlinjection:
+    image: ${DOCKER_REGISTRY-}sqlinjection
+    build:
+      context: .
+      dockerfile: SqlInjection/Dockerfile
+    depends_on:
+      - sqlinjectiondb
+
+  sqlinjectiondb:
+    image: microsoft/mssql-server-linux:latest

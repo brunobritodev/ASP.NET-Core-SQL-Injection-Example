@@ -1,0 +1,148 @@
+﻿@model PaginatedList<SqlInjection.Models.Student>
+
+@{
+    ViewData["Title"] = "Index";
+}
+@section Scripts
+{
+    <script>
+        function searchUnsecure() {
+            var name = $('#SearchString').val();
+
+            $.getJSON(`http://localhost:5005/SearchStudentUnsecure?name=${name}`
+            ).done(function (data) {
+                var table = `<table class="table table-dark">
+                                            <thead>
+                                                    <tr>
+                                                        <th>
+                                                            Last Name
+                                                        </th>
+                                                        <th>
+                                                            First Name
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>`;
+
+                data.forEach(student => {
+                    table += `<tr>
+                                        <td> ${student.lastName}</td>
+                                        <td>${student.firstName}</td>
+                                    </tr>`;
+                });
+                table += `</tbody></table>`;
+
+                $('#unsecureContent').html(table);
+            });
+        }
+
+        function searchSecure() {
+            var name = $('#SecureSearchString').val();
+
+            $.getJSON(`http://localhost:5005/SearchStudentSecure?name=${name}`
+            ).done(function (data) {
+                var table = `<table class="table table-dark">
+                                            <thead>
+                                                    <tr>
+                                                        <th>
+                                                            Last Name
+                                                        </th>
+                                                        <th>
+                                                            First Name
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>`;
+
+                data.forEach(student => {
+                    table += `<tr>
+                                        <td> ${student.lastName}</td>
+                                        <td>${student.firstName}</td>
+                                    </tr>`;
+                });
+                table += `</tbody></table>`;
+
+                $('#unsecureContent').html(table);
+            });
+        }
+
+    </script>
+}
+<h2>Students</h2>
+<br>
+<p>To exploit the SQL Injection threat, you can try:
+    <ul>
+        <li>Use <span class="badge badge-danger">abc' OR 1=1 --</span> - In this case this is the easiest way to determine that SQL is unsecure</li>
+        <li>Going further, you can discover all tables in SQL by using this query <span class="badge badge-danger">abc' UNION SELECT [name], cast(max_column_id_used as varchar(5)) FROM sys.Tables --</span> - Now all tables and how many colums each one has will be shown</li>
+        <li>
+            In a hyphotetical attack, sensitive data could be stolen. Try this: <span class="badge badge-danger">abc' UNION SELECT Username, Password FROM AspnetUsers --</span>
+        </li>
+        <li>
+            Now you can try another commands, like:
+            <ul>
+                <li><span class="badge badge-danger">abc' UNION SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Course' --</span></li>
+                <li>Bob drop table :) - <span class="badge badge-danger">abc' DROP TABLE Student --</span> - After this, click on the button Recreat at the bottom of this page</li>
+            </ul>
+        </li>
+    </ul>
+</p>
+<hr/>
+<div class="row">
+    <div class="col col-6">
+        <div class="card text-white mb-3">
+            <div class="card-header bg-danger">Unsecure find Student by Name:</div>
+            <div class="card-body">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="SearchString"/>
+                    <button type="button" class="btn btn-primary" onclick="searchUnsecure()">Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col col-6">
+        <div class="card text-white mb-3">
+            <div class="card-header bg-success">Secure find Student by Name:</div>
+            <div class="card-body">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="SecureSearchString" />
+                    <button type="button" class="btn btn-primary" onclick="searchSecure()">Search</button>
+                </div>
+                <small style="color: black">Through this input it supposed to nothing of these commands works within it</small>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="unsecureContent">
+    <table class="table table-dark">
+        <thead>
+            <tr>
+                <th>
+                    Last Name
+                </th>
+                <th>
+                    First Name
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LastName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FirstName)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="row">
+    <div class="float-lg-right">
+        <a asp-action="RecreateDatabase" class="btn btn-warning">Recreate database</a>
+    </div>
+
+</div>
